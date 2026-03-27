@@ -12,12 +12,8 @@ let clientName = `User-${Math.floor(Math.random() * 9000 + 1000)}`;
 const USER_COLORS = ['#4F46E5', '#DC2626', '#16A34A', '#D97706', '#7C3AED', '#DB2777'];
 const clientColor = USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)];
 
-// Store client ID in localStorage for persistence
-let clientId = localStorage.getItem('kanban-client-id');
-if (!clientId) {
-  clientId = uuidv4();
-  localStorage.setItem('kanban-client-id', clientId);
-}
+// socketId tracks the current socket.id (set after connect, used for presence filtering)
+let socketId: string | null = null;
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
@@ -83,6 +79,7 @@ export function useSocket() {
     socketRef.current = socket;
 
     socket.on('connect', async () => {
+      socketId = socket.id ?? null;
       setConnected(true);
       setOffline(false);
 
@@ -212,5 +209,5 @@ export function useSocket() {
     socketRef.current?.emit('presence:editing', { taskId });
   }, []);
 
-  return { socket: socketRef.current, emitOrQueue, emitPresenceEditing, clientId };
+  return { socket: socketRef.current, emitOrQueue, emitPresenceEditing, socketId };
 }

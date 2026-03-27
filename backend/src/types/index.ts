@@ -12,6 +12,7 @@ export interface Task {
 }
 
 export interface CreateTaskInput {
+  id?: string;
   title: string;
   description?: string;
   column?: Column;

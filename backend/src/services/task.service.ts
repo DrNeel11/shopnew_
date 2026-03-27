@@ -53,12 +53,28 @@ export async function createTask(
     const lastPos = lastPosResult.rows.length > 0 ? lastPosResult.rows[0].position : null;
     const position = positionAtEnd(lastPos);
 
-    const result = await client.query(
-      `INSERT INTO tasks (title, description, column_name, position, version)
-       VALUES ($1, $2, $3, $4, 1)
-       RETURNING *`,
-      [input.title, input.description || '', column, position]
-    );
+    let result;
+    if (input.id) {
+      result = await client.query(
+        `INSERT INTO tasks (id, title, description, column_name, position, version)
+         VALUES ($1, $2, $3, $4, $5, 1)
+         ON CONFLICT (id) DO NOTHING
+         RETURNING *`,
+        [input.id, input.title, input.description || '', column, position]
+      );
+      // If DO NOTHING triggered (task already exists), fetch the existing row
+      if (result.rows.length === 0) {
+        const existing = await client.query('SELECT * FROM tasks WHERE id = $1', [input.id]);
+        result = existing;
+      }
+    } else {
+      result = await client.query(
+        `INSERT INTO tasks (title, description, column_name, position, version)
+         VALUES ($1, $2, $3, $4, 1)
+         RETURNING *`,
+        [input.title, input.description || '', column, position]
+      );
+    }
 
     await client.query('COMMIT');
     return rowToTask(result.rows[0]);
