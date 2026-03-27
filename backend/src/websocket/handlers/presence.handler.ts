@@ -1,8 +1,6 @@
 import { Socket } from 'socket.io';
 import { PresenceUser } from '../../types/index';
 
-const presenceMap = new Map<string, PresenceUser>();
-
 export function handlePresence(
   socket: Socket,
   presenceUsers: Map<string, PresenceUser>

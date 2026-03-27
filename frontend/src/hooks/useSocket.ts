@@ -33,10 +33,8 @@ export function useSocket() {
     updatePresenceUser,
     setPresenceUsers,
     addQueuedAction,
-    offlineQueue: _offlineQueue,
     clearQueue,
     addConflict,
-    tasks,
   } = useBoardStore();
 
   const replayQueue = useCallback(
@@ -180,7 +178,7 @@ export function useSocket() {
     };
   }, [setTasks, addTask, updateTask, removeTask, setConnected, setOffline,
       addPresenceUser, removePresenceUser, updatePresenceUser, setPresenceUsers,
-      addQueuedAction, clearQueue, addConflict, replayQueue, tasks]);
+      addQueuedAction, clearQueue, addConflict, replayQueue]);
 
   const emitOrQueue = useCallback(
     (type: QueuedAction['type'], payload: Record<string, unknown>) => {
