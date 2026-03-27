@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
 export const createTaskSchema = z.object({
+  id: z.string().uuid().optional(),
   title: z.string().min(1, 'Title is required').max(200, 'Title too long').trim(),
   description: z.string().max(2000, 'Description too long').optional().default(''),
   column: z.enum(['todo', 'inprogress', 'done']).optional().default('todo'),

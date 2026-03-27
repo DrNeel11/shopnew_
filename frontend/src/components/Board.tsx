@@ -17,6 +17,7 @@ import { Column as KanbanColumn } from './Column';
 import { PresenceIndicator } from './PresenceIndicator';
 import { ErrorBoundary } from './ErrorBoundary';
 import { Column, Task, COLUMNS } from '../types';
+import { v4 as uuidv4 } from '../utils/uuid';
 
 interface ConflictToastProps {
   taskId: string;
@@ -71,7 +72,7 @@ export function Board() {
     removeTask,
   } = useBoardStore();
 
-  const { emitOrQueue, emitPresenceEditing, clientId } = useSocket();
+  const { emitOrQueue, emitPresenceEditing, socketId } = useSocket();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -83,9 +84,11 @@ export function Board() {
 
   const handleCreateTask = useCallback(
     (column: Column, title: string, description: string) => {
-      // Optimistic: add task immediately with temporary ID
-      const tempTask: Task = {
-        id: `temp-${Date.now()}`,
+      // Generate a client-side UUID so the optimistic task ID matches the server task ID,
+      // preventing duplicate tasks when the server confirms via task:created
+      const taskId = uuidv4();
+      const optimisticTask: Task = {
+        id: taskId,
         title,
         description,
         column,
@@ -94,9 +97,9 @@ export function Board() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-      addTask(tempTask);
+      addTask(optimisticTask);
 
-      emitOrQueue('create', { title, description, column });
+      emitOrQueue('create', { id: taskId, title, description, column });
     },
     [addTask, emitOrQueue]
   );
@@ -258,7 +261,7 @@ export function Board() {
           </div>
         </div>
 
-        <PresenceIndicator users={presenceUsers} currentClientId={clientId ?? ''} />
+        <PresenceIndicator users={presenceUsers} currentClientId={socketId ?? ''} />
       </header>
 
       {/* Conflict notifications */}
