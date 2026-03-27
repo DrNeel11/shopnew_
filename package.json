@@ -1,0 +1,18 @@
+{
+  "name": "kanban-board",
+  "version": "1.0.0",
+  "description": "Real-time multi-user Kanban board",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "test": "cd backend && npm test",
+    "test:unit": "cd backend && npm run test:unit",
+    "test:integration": "cd backend && npm run test:integration",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  },
+  "readme": "See DESIGN.md for architecture and conflict resolution strategy."
+}
